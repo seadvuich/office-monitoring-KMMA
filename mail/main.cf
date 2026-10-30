@@ -1,0 +1,26 @@
+# Postfix - основна конфигурация на офисния mail сървър
+compatibility_level = 3.6
+
+myhostname = mail.office.local
+mydomain   = office.local
+myorigin   = $mydomain
+mydestination = $myhostname, $mydomain, localhost.$mydomain, localhost
+
+inet_interfaces = all
+inet_protocols  = ipv4
+
+# Само офисната мрежа може да изпраща поща (без open relay)
+mynetworks = 127.0.0.0/8, 10.10.0.0/24
+smtpd_relay_restrictions = permit_mynetworks, reject_unauth_destination
+relayhost =
+
+smtpd_banner = $myhostname ESMTP Office Mail Server
+
+alias_maps     = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+mailbox_size_limit  = 0
+message_size_limit  = 10240000
+recipient_delimiter = +
+
+maillog_file = /var/log/mail.log
+biff = no

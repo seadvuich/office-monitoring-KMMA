@@ -1,0 +1,31 @@
+$TTL 3600
+@   IN  SOA ns1.office.local. admin.office.local. (
+        2026103001  ; serial
+        3600        ; refresh
+        900         ; retry
+        604800      ; expire
+        300 )       ; negative cache TTL
+    IN  NS  ns1.office.local.
+
+5       IN  PTR zabbix-db.office.local.
+10      IN  PTR zabbix.office.local.
+12      IN  PTR zabbix-web.office.local.
+20      IN  PTR www.office.local.
+21      IN  PTR ftp.office.local.
+25      IN  PTR mail.office.local.
+53      IN  PTR ns1.office.local.
+101     IN  PTR ws01.office.local.
+102     IN  PTR ws02.office.local.
+103     IN  PTR ws03.office.local.
+104     IN  PTR ws04.office.local.
+105     IN  PTR ws05.office.local.
+106     IN  PTR ws06.office.local.
+107     IN  PTR ws07.office.local.
+108     IN  PTR ws08.office.local.
+109     IN  PTR ws09.office.local.
+110     IN  PTR ws10.office.local.
+111     IN  PTR ws11.office.local.
+112     IN  PTR ws12.office.local.
+113     IN  PTR ws13.office.local.
+114     IN  PTR ws14.office.local.
+115     IN  PTR ws15.office.local.

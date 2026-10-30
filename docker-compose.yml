@@ -1,0 +1,276 @@
+# =====================================================================
+#  Мониторинг на малка офисна мрежа (15 работни места)
+#  Zabbix 7.0 + DNS (bind9) + HTTP (nginx) + Mail (Postfix) + FTP (vsftpd)
+#  Стартиране:  docker compose up -d --build
+#  Zabbix GUI:  http://localhost:8080   (Admin / zabbix)
+# =====================================================================
+name: office-monitoring
+
+x-workstation: &workstation
+  image: alpine:3.20
+  command: ["sleep", "infinity"]
+  init: true
+  restart: unless-stopped
+  dns: [10.10.0.53]
+  dns_search: [office.local]
+
+x-db-env: &db-env
+  POSTGRES_USER: zabbix
+  POSTGRES_PASSWORD: zabbix_pwd
+  POSTGRES_DB: zabbix
+
+services:
+
+  # ------------------------- Мониторинг ------------------------------
+  zabbix-db:
+    image: postgres:16-alpine
+    container_name: zabbix-db
+    environment:
+      <<: *db-env
+    volumes:
+      - zabbix-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.5
+
+  zabbix-server:
+    build: ./zabbix
+    container_name: zabbix-server
+    hostname: zabbix
+    environment:
+      <<: *db-env
+      DB_SERVER_HOST: zabbix-db
+      ZBX_STARTPINGERS: 3
+      ZBX_TIMEOUT: 5
+      TZ: Europe/Sofia
+    depends_on: [zabbix-db]
+    restart: unless-stopped
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.10
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-7.0-latest
+    container_name: zabbix-web
+    environment:
+      <<: *db-env
+      DB_SERVER_HOST: zabbix-db
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: Europe/Sofia
+    ports:
+      - "8080:8080"
+    depends_on: [zabbix-db, zabbix-server]
+    restart: unless-stopped
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.12
+
+  # Еднократен контейнер: автоматично създава хостове, проверки,
+  # тригери, карта на мрежата и известявания чрез Zabbix API.
+  zabbix-setup:
+    image: python:3.12-alpine
+    container_name: zabbix-setup
+    command: ["python", "-u", "/setup/setup_zabbix.py"]
+    environment:
+      ZABBIX_URL: http://zabbix-web:8080/api_jsonrpc.php
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+    volumes:
+      - ./setup:/setup:ro
+    depends_on: [zabbix-web]
+    restart: "no"
+    networks:
+      - office_net
+
+  # ------------------------- Сървъри ---------------------------------
+  dns-server:
+    image: ubuntu/bind9:latest
+    container_name: dns-server
+    hostname: ns1
+    environment:
+      BIND9_USER: root
+      TZ: Europe/Sofia
+    volumes:
+      - ./dns/named.conf.options:/etc/bind/named.conf.options:ro
+      - ./dns/named.conf.local:/etc/bind/named.conf.local:ro
+      - ./dns/zones:/etc/bind/zones:ro
+    restart: unless-stopped
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.53
+
+  web-server:
+    image: nginx:1.27-alpine
+    container_name: web-server
+    hostname: www
+    init: true
+    # nginx работи като услуга, така че може да се спре без да спре контейнерът
+    command: ["sh", "-c", "nginx && sleep infinity"]
+    volumes:
+      - ./web/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./web/html:/usr/share/nginx/html:ro
+    ports:
+      - "8081:80"
+    dns: [10.10.0.53]
+    restart: unless-stopped
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.20
+
+  mail-server:
+    build: ./mail
+    container_name: mail-server
+    hostname: mail.office.local
+    init: true
+    dns: [10.10.0.53]
+    restart: unless-stopped
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.25
+
+  ftp-server:
+    build: ./ftp
+    container_name: ftp-server
+    hostname: ftp
+    init: true
+    dns: [10.10.0.53]
+    restart: unless-stopped
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.21
+
+  # ------------------- Работни станции (15) --------------------------
+
+  ws01:
+    <<: *workstation
+    container_name: ws01
+    hostname: ws01
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.101
+
+  ws02:
+    <<: *workstation
+    container_name: ws02
+    hostname: ws02
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.102
+
+  ws03:
+    <<: *workstation
+    container_name: ws03
+    hostname: ws03
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.103
+
+  ws04:
+    <<: *workstation
+    container_name: ws04
+    hostname: ws04
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.104
+
+  ws05:
+    <<: *workstation
+    container_name: ws05
+    hostname: ws05
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.105
+
+  ws06:
+    <<: *workstation
+    container_name: ws06
+    hostname: ws06
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.106
+
+  ws07:
+    <<: *workstation
+    container_name: ws07
+    hostname: ws07
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.107
+
+  ws08:
+    <<: *workstation
+    container_name: ws08
+    hostname: ws08
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.108
+
+  ws09:
+    <<: *workstation
+    container_name: ws09
+    hostname: ws09
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.109
+
+  ws10:
+    <<: *workstation
+    container_name: ws10
+    hostname: ws10
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.110
+
+  ws11:
+    <<: *workstation
+    container_name: ws11
+    hostname: ws11
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.111
+
+  ws12:
+    <<: *workstation
+    container_name: ws12
+    hostname: ws12
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.112
+
+  ws13:
+    <<: *workstation
+    container_name: ws13
+    hostname: ws13
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.113
+
+  ws14:
+    <<: *workstation
+    container_name: ws14
+    hostname: ws14
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.114
+
+  ws15:
+    <<: *workstation
+    container_name: ws15
+    hostname: ws15
+    networks:
+      office_net:
+        ipv4_address: 10.10.0.115
+
+networks:
+  office_net:
+    name: office_net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
+          gateway: 10.10.0.1
+          ip_range: 10.10.0.192/27   # динамични адреси (само за zabbix-setup)
+
+volumes:
+  zabbix-db-data:

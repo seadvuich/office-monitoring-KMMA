@@ -1,0 +1,35 @@
+$TTL 3600
+@   IN  SOA ns1.office.local. admin.office.local. (
+        2026103001  ; serial
+        3600        ; refresh
+        900         ; retry
+        604800      ; expire
+        300 )       ; negative cache TTL
+    IN  NS  ns1.office.local.
+    IN  MX  10 mail.office.local.
+
+; ---- Сървъри ----
+ns1         IN  A   10.10.0.53
+dns         IN  A   10.10.0.53
+zabbix      IN  A   10.10.0.10
+www         IN  A   10.10.0.20
+web         IN  A   10.10.0.20
+ftp         IN  A   10.10.0.21
+mail        IN  A   10.10.0.25
+
+; ---- Работни станции ----
+ws01        IN  A   10.10.0.101
+ws02        IN  A   10.10.0.102
+ws03        IN  A   10.10.0.103
+ws04        IN  A   10.10.0.104
+ws05        IN  A   10.10.0.105
+ws06        IN  A   10.10.0.106
+ws07        IN  A   10.10.0.107
+ws08        IN  A   10.10.0.108
+ws09        IN  A   10.10.0.109
+ws10        IN  A   10.10.0.110
+ws11        IN  A   10.10.0.111
+ws12        IN  A   10.10.0.112
+ws13        IN  A   10.10.0.113
+ws14        IN  A   10.10.0.114
+ws15        IN  A   10.10.0.115

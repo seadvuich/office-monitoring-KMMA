@@ -1,0 +1,12 @@
+// Локални зони на офиса
+zone "office.local" {
+    type master;
+    file "/etc/bind/zones/db.office.local";
+    allow-transfer { none; };
+};
+
+zone "0.10.10.in-addr.arpa" {
+    type master;
+    file "/etc/bind/zones/db.10.10.0";
+    allow-transfer { none; };
+};

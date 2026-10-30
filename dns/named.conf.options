@@ -1,0 +1,21 @@
+// BIND9 - общи настройки на DNS сървъра на офиса
+acl office_lan { 10.10.0.0/24; 127.0.0.1; };
+
+options {
+    directory "/var/cache/bind";
+
+    listen-on { any; };
+    listen-on-v6 { none; };
+
+    // Рекурсия само за офисната мрежа
+    recursion yes;
+    allow-query { any; };
+    allow-recursion { office_lan; };
+
+    // Външни имена се препращат към публични DNS сървъри
+    forwarders { 1.1.1.1; 8.8.8.8; };
+    forward first;
+
+    dnssec-validation auto;
+    version "not disclosed";
+};

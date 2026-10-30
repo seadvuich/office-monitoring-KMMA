@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Office Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f3f5f8; margin: 0; }
+    .box { max-width: 640px; margin: 80px auto; background: #fff; padding: 40px;
+           border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+    h1 { color: #1f4e79; margin-top: 0; }
+    .ok { color: #2e7d32; font-weight: bold; }
+    td { padding: 4px 12px 4px 0; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Office Portal</h1>
+    <p>Вътрешен уеб сървър на офиса (nginx). Статус: <span class="ok">работи</span></p>
+    <table>
+      <tr><td>DNS</td><td>ns1.office.local</td><td>10.10.0.53</td></tr>
+      <tr><td>Web</td><td>www.office.local</td><td>10.10.0.20</td></tr>
+      <tr><td>FTP</td><td>ftp.office.local</td><td>10.10.0.21</td></tr>
+      <tr><td>Mail</td><td>mail.office.local</td><td>10.10.0.25</td></tr>
+      <tr><td>Мониторинг</td><td>zabbix.office.local</td><td>10.10.0.10</td></tr>
+    </table>
+  </div>
+</body>
+</html>
